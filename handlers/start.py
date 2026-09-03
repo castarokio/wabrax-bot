@@ -23,11 +23,11 @@ async def build_welcome_text(user_id: int, t) -> str:
             f"{tg_e('SHIELD_BETTER')} <b>ضمان ذهبي:</b> تغطية استبدال كاملة طوال مدة الاشتراك مع دعم فني متواصل.\n"
             f"{tg_e('LOCK_NEW')} <b>دفع تلقائي آمن:</b> شحن فوري وبدون عمولات عبر Binance Pay والعملات الرقمية.</blockquote>\n\n"
             f"{tg_e('EPIC_NEW')} <b>أقسام المنصة:</b>\n"
-            f"• {tg_e('CHATGPT')} <b>حلول ونماذج الذكاء الاصطناعي:</b> ChatGPT, Claude, Midjourney\n"
-            f"• {tg_e('GOOGLE_ONE')} <b>أنظمة التشغيل والبرمجيات:</b> Windows 11, Office 365, GitHub\n"
-            f"• {tg_e('PICSART')} <b>حزم التصميم وصناعة المحتوى:</b> Canva Pro, CapCut Pro\n"
-            f"• {tg_e('EXPRESS_VPN')} <b>خدمات الحماية والخصوصية:</b> ExpressVPN, NordVPN\n"
-            f"• {tg_e('NETFLIX')} <b>المنصات التعليمية والترفيهية:</b> Coursera Plus, Netflix 4K\n\n"
+            f"{tg_e('DOT_BLUE')} {tg_e('CHATGPT')} <b>حلول ونماذج الذكاء الاصطناعي:</b> ChatGPT, Claude, Midjourney\n"
+            f"{tg_e('DOT_GREEN')} {tg_e('GOOGLE_ONE')} <b>أنظمة التشغيل والبرمجيات:</b> Windows 11, Office 365, GitHub\n"
+            f"{tg_e('DOT_PURPLE')} {tg_e('PICSART')} <b>حزم التصميم وصناعة المحتوى:</b> Canva Pro, CapCut Pro\n"
+            f"{tg_e('DOT_PINK')} {tg_e('EXPRESS_VPN')} <b>خدمات الحماية والخصوصية:</b> ExpressVPN, NordVPN\n"
+            f"{tg_e('DOT_YELLOW')} {tg_e('NETFLIX')} <b>المنصات التعليمية والترفيهية:</b> Coursera Plus, Netflix 4K\n\n"
             f"<i>حدد خياراً من الأسفل للمتابعة:</i>"
         )
     elif lang == "ru":
@@ -39,11 +39,11 @@ async def build_welcome_text(user_id: int, t) -> str:
             f"{tg_e('SHIELD_BETTER')} <b>Гарантия качества:</b> Полное гарантийное обслуживание на весь срок лицензии.\n"
             f"{tg_e('LOCK_NEW')} <b>Авто-оплата:</b> Моментальное пополнение через Binance Pay и криптовалюту.</blockquote>\n\n"
             f"{tg_e('EPIC_NEW')} <b>Категории:</b>\n"
-            f"• {tg_e('CHATGPT')} <b>Искусственный интеллект:</b> ChatGPT, Claude, Midjourney\n"
-            f"• {tg_e('GOOGLE_ONE')} <b>Операционные системы и софт:</b> Windows 11, Office 365, GitHub\n"
-            f"• {tg_e('PICSART')} <b>Дизайн и видеомонтаж:</b> Canva Pro, CapCut Pro, Adobe\n"
-            f"• {tg_e('EXPRESS_VPN')} <b>Безопасность и приватность:</b> ExpressVPN, NordVPN\n"
-            f"• {tg_e('NETFLIX')} <b>Обучение и кинотеатры:</b> Coursera Plus, Netflix 4K\n\n"
+            f"{tg_e('DOT_BLUE')} {tg_e('CHATGPT')} <b>Искусственный интеллект:</b> ChatGPT, Claude, Midjourney\n"
+            f"{tg_e('DOT_GREEN')} {tg_e('GOOGLE_ONE')} <b>Операционные системы и софт:</b> Windows 11, Office 365, GitHub\n"
+            f"{tg_e('DOT_PURPLE')} {tg_e('PICSART')} <b>Дизайн и видеомонтаж:</b> Canva Pro, CapCut Pro, Adobe\n"
+            f"{tg_e('DOT_PINK')} {tg_e('EXPRESS_VPN')} <b>Безопасность и приватность:</b> ExpressVPN, NordVPN\n"
+            f"{tg_e('DOT_YELLOW')} {tg_e('NETFLIX')} <b>Обучение и кинотеатры:</b> Coursera Plus, Netflix 4K\n\n"
             f"<i>Выберите действие ниже для продолжения:</i>"
         )
     else:
@@ -55,13 +55,14 @@ async def build_welcome_text(user_id: int, t) -> str:
             f"{tg_e('SHIELD_BETTER')} <b>Buyer Protection:</b> Full replacement warranty on all active licenses.\n"
             f"{tg_e('LOCK_NEW')} <b>Automated Billing:</b> Direct zero-fee checkout via Binance Pay & crypto.</blockquote>\n\n"
             f"{tg_e('EPIC_NEW')} <b>Available Departments:</b>\n"
-            f"• {tg_e('CHATGPT')} <b>Artificial Intelligence:</b> ChatGPT Plus, Claude API, Midjourney\n"
-            f"• {tg_e('GOOGLE_ONE')} <b>Cloud & Software:</b> Windows 11, Office 365, GitHub, JetBrains\n"
-            f"• {tg_e('PICSART')} <b>Design & Creativity:</b> Canva Pro, CapCut Pro, Adobe Suite\n"
-            f"• {tg_e('EXPRESS_VPN')} <b>Security & Privacy:</b> ExpressVPN, NordVPN, Private Proxies\n"
-            f"• {tg_e('NETFLIX')} <b>Streaming & Education:</b> Netflix 4K, Coursera Plus, Spotify\n\n"
+            f"{tg_e('DOT_BLUE')} {tg_e('CHATGPT')} <b>Artificial Intelligence:</b> ChatGPT Plus, Claude API, Midjourney\n"
+            f"{tg_e('DOT_GREEN')} {tg_e('GOOGLE_ONE')} <b>Cloud & Software:</b> Windows 11, Office 365, GitHub, JetBrains\n"
+            f"{tg_e('DOT_PURPLE')} {tg_e('PICSART')} <b>Design & Creativity:</b> Canva Pro, CapCut Pro, Adobe Suite\n"
+            f"{tg_e('DOT_PINK')} {tg_e('EXPRESS_VPN')} <b>Security & Privacy:</b> ExpressVPN, NordVPN, Private Proxies\n"
+            f"{tg_e('DOT_YELLOW')} {tg_e('NETFLIX')} <b>Streaming & Education:</b> Netflix 4K, Coursera Plus, Spotify\n\n"
             f"<i>Select an option below to proceed:</i>"
         )
+
 
 
 
