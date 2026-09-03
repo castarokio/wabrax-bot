@@ -1,0 +1,443 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+  <title>Verifier Store</title>
+  <script src="https://telegram.org/js/telegram-web-app.js"></script>
+  <link rel="stylesheet" href="/static/styles.css">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=Playfair+Display:ital,wght@1,600&display=swap" rel="stylesheet">
+</head>
+<body>
+  <!-- Ambient Background Glows -->
+  <div class="ambient-glow glow-top"></div>
+  <div class="ambient-glow glow-bottom"></div>
+
+  <!-- Toast Notification -->
+  <div class="toast-container" id="toastContainer">
+    <div class="toast" id="toast">Copied to clipboard!</div>
+  </div>
+
+  <!-- App Header (Matching Screenshot 1) -->
+  <header class="app-header">
+    <div class="brand-box">
+      <div class="bot-avatar">
+        <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <rect x="3" y="11" width="18" height="10" rx="2"></rect>
+          <circle cx="12" cy="5" r="2"></circle>
+          <path d="M12 7v4"></path>
+          <line x1="8" y1="16" x2="8" y2="16"></line>
+          <line x1="16" y1="16" x2="16" y2="16"></line>
+        </svg>
+      </div>
+      <div class="brand-text">
+        <span class="brand-name">Verifier</span>
+        <span class="brand-sub" id="headerSub">STORE</span>
+      </div>
+    </div>
+    
+    <div class="header-actions">
+      <!-- 3-Language Pill (EN | RU | 中) -->
+      <div class="lang-pills">
+        <button class="lang-btn active" data-lang="en">EN</button>
+        <button class="lang-btn" data-lang="ru">RU</button>
+        <button class="lang-btn" data-lang="ar">中</button>
+      </div>
+
+      <!-- Balance Pill with Purse Icon -->
+      <div class="balance-pill" id="balancePillBtn">
+        <span class="purse-icon">👛</span>
+        <span class="balance-val" id="topBalance">$0</span>
+      </div>
+
+      <!-- Notification Bell -->
+      <button class="icon-btn bell-btn" id="bellBtn">
+        <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"></path>
+          <path d="M13.73 21a2 2 0 0 1-3.46 0"></path>
+        </svg>
+      </button>
+    </div>
+  </header>
+
+  <!-- Main Scrollable App Container -->
+  <main class="app-main">
+    
+    <!-- ==================== TAB 1: STORE ==================== -->
+    <section class="tab-pane active" id="tabStore">
+      <!-- Search Bar -->
+      <div class="search-box">
+        <svg class="search-svg" viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+          <circle cx="11" cy="11" r="8"></circle>
+          <line x1="21" y1="21" x2="16.65" y2="16.65"></line>
+        </svg>
+        <input type="text" id="searchInput" placeholder="Search products, accounts, API...">
+        <button class="clear-search-btn" id="clearSearchBtn" style="display:none;">✕</button>
+      </div>
+
+      <!-- Category Pills Row Synced with Bot Categories -->
+      <nav class="category-pills">
+        <button class="cat-pill active" data-cat="all">All (71)</button>
+        <button class="cat-pill" data-cat="1">🤖 AI Tools</button>
+        <button class="cat-pill" data-cat="2">🎨 Dev & Design</button>
+        <button class="cat-pill" data-cat="3">💼 Office & Work</button>
+        <button class="cat-pill" data-cat="4">🎬 Streaming</button>
+        <button class="cat-pill" data-cat="5">🛡️ VPN & Security</button>
+        <button class="cat-pill" data-cat="6">🔑 OS & Keys</button>
+      </nav>
+
+
+      <!-- Hero Banner / Today's Pick (Screenshot 1) -->
+      <div class="hero-card" id="heroCard">
+        <div class="hero-art-bg">
+          <svg viewBox="0 0 200 200" width="100%" height="100%">
+            <defs>
+              <linearGradient id="heroGlow" x1="0%" y1="0%" x2="100%" y2="100%">
+                <stop offset="0%" stop-color="#00d2ff" stop-opacity="0.4"/>
+                <stop offset="100%" stop-color="#007aff" stop-opacity="0.05"/>
+              </linearGradient>
+            </defs>
+            <circle cx="130" cy="90" r="70" fill="url(#heroGlow)"/>
+            <!-- Futuristic Cyber Nodes -->
+            <path d="M70 120 L110 70 L160 90 L180 50" fill="none" stroke="#00d2ff" stroke-width="2" stroke-dasharray="4 4" opacity="0.6"/>
+            <circle cx="110" cy="70" r="5" fill="#00d2ff"/>
+            <circle cx="160" cy="90" r="4" fill="#ffffff"/>
+            <circle cx="180" cy="50" r="6" fill="#38ef7d"/>
+            <!-- Stylized AI Robot Helmet -->
+            <path d="M115 65 C115 45, 165 45, 165 65 L160 115 C160 125, 120 125, 120 115 Z" fill="#141824" stroke="#007aff" stroke-width="3"/>
+            <!-- Visor Glow -->
+            <path d="M125 78 L155 78" stroke="#00d2ff" stroke-width="4" stroke-linecap="round" filter="drop-shadow(0 0 6px #00d2ff)"/>
+          </svg>
+        </div>
+        <div class="hero-content">
+          <span class="hero-label">TODAY'S PICK</span>
+          <h2 class="hero-title">ChatGPT Business<br><span class="hero-subtitle">2 MONTHS FULL ADMIN</span></h2>
+          <div class="hero-bottom">
+            <span class="hero-price">Only $35</span>
+            <button class="btn-hero-buy" id="heroBuyBtn">Buy now · $35</button>
+          </div>
+        </div>
+      </div>
+
+      <!-- Section Title (Screenshot 1 Playfair Serif) -->
+      <div class="section-heading">
+        <h3 class="serif-title">All products</h3>
+        <span class="stock-summary-badge" id="stockSummaryBadge">13 items in stock</span>
+      </div>
+
+      <!-- Product Cards Grid (2-Columns Matching Screenshot 1) -->
+      <div class="products-grid" id="productsGrid">
+        <!-- Injected dynamically with rich cards -->
+      </div>
+    </section>
+
+    <!-- ==================== TAB 2: ORDERS ==================== -->
+    <section class="tab-pane" id="tabOrders">
+      <div class="orders-header">
+        <h2 class="screen-title">Orders</h2>
+      </div>
+
+      <div class="orders-list" id="ordersList">
+        <!-- Injected dynamically matching Screenshot 3 -->
+      </div>
+    </section>
+
+    <!-- ==================== TAB 3: BALANCE ==================== -->
+    <section class="tab-pane" id="tabBalance">
+      <div class="balance-screen">
+        <span class="dim-label">YOUR BALANCE</span>
+        <h1 class="huge-balance" id="hugeBalance">$0</h1>
+
+        <button class="btn-add-funds" id="addFundsBtn">
+          <span>+ Add funds</span>
+        </button>
+
+        <div class="activity-section">
+          <div class="activity-header">
+            <h3>Recent activity</h3>
+            <div class="activity-filters">
+              <button class="filter-pill active" data-filter="all">All</button>
+              <button class="filter-pill" data-filter="topups">Top-ups</button>
+              <button class="filter-pill" data-filter="paid">Paid</button>
+            </div>
+          </div>
+
+          <div class="activity-list" id="activityList">
+            <!-- Injected dynamically matching Screenshot 2 -->
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ==================== TAB 4: PROFILE ==================== -->
+    <section class="tab-pane" id="tabProfile">
+      <div class="profile-screen">
+        <div class="profile-card">
+          <div class="profile-avatar" id="profAvatar">👤</div>
+          <div class="profile-info">
+            <h3 id="profName">Telegram User</h3>
+            <p id="profId">ID: 00000000</p>
+            <span class="verified-pill">✓ Verified Partner</span>
+          </div>
+        </div>
+
+        <div class="profile-menu-list">
+          <div class="profile-item" id="profStatsBtn">
+            <span class="p-icon">📊</span>
+            <span>Account Statistics</span>
+            <span class="p-arrow">›</span>
+          </div>
+          <div class="profile-item" id="profReferralBtn">
+            <span class="p-icon">🤝</span>
+            <span>Referral Program (10% Bonus)</span>
+            <span class="p-arrow">›</span>
+          </div>
+          <div class="profile-item" id="profApiBtn">
+            <span class="p-icon">🔌</span>
+            <span>Reseller API (OAS 3.0)</span>
+            <span class="p-val">VenteBot 1.2</span>
+          </div>
+          <div class="profile-item" id="profSupportBtn">
+            <span class="p-icon">💬</span>
+            <span>Customer Support Desk</span>
+            <span class="p-arrow">›</span>
+          </div>
+        </div>
+      </div>
+    </section>
+
+  </main>
+
+  <!-- Floating Bottom Glass Pill Dock (Matching Screenshots 1, 2, 3, 4) -->
+  <nav class="bottom-dock">
+    <button class="dock-btn active" data-tab="tabStore">
+      <div class="dock-icon">
+        <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"></path>
+          <polyline points="9 22 9 12 15 12 15 22"></polyline>
+        </svg>
+      </div>
+      <span class="dock-label">Store</span>
+    </button>
+    <button class="dock-btn" data-tab="tabOrders">
+      <div class="dock-icon">
+        <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <circle cx="9" cy="21" r="1"></circle>
+          <circle cx="20" cy="21" r="1"></circle>
+          <path d="M1 1h4l2.68 13.39a2 2 0 0 0 2 1.61h9.72a2 2 0 0 0 2-1.61L23 6H6"></path>
+        </svg>
+      </div>
+      <span class="dock-label">Orders</span>
+    </button>
+    <button class="dock-btn" data-tab="tabBalance">
+      <div class="dock-icon">👛</div>
+      <span class="dock-label">Balance</span>
+    </button>
+    <button class="dock-btn" data-tab="tabProfile">
+      <div class="dock-icon">
+        <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path>
+          <circle cx="12" cy="7" r="4"></circle>
+        </svg>
+      </div>
+      <span class="dock-label">Profile</span>
+    </button>
+  </nav>
+
+  <!-- Product Details Sheet Modal (Matching Screenshot 4) -->
+  <div class="modal-backdrop" id="productModal">
+    <div class="modal-sheet">
+      <div class="sheet-top-drag">
+        <div class="drag-handle"></div>
+      </div>
+      
+      <div class="sheet-header">
+        <button class="modal-close-btn" id="modalCloseBtn">✕</button>
+      </div>
+
+      <!-- Preview Banner Card (Screenshot 4) -->
+      <div class="sheet-preview-card" id="sheetPreviewCard">
+        <div class="preview-tags">
+          <span class="badge-red" id="sheetBadgeNew">NEW</span>
+          <span class="badge-green">✓ OFFICIAL</span>
+        </div>
+        <div class="preview-brand-art" id="sheetBrandArt">
+          <!-- Dynamic Cover Graphic -->
+        </div>
+        <div class="preview-coupon-row">
+          <span class="coupon-pill">🎟️ Coupon code</span>
+        </div>
+      </div>
+
+      <div class="sheet-body">
+        <div class="prod-category-tag" id="sheetCatTag">MAGIC PATTERNS · OFFICIAL PROMO</div>
+        <h2 class="sheet-title" id="sheetTitle">Magic Patterns Starter — 1 Year</h2>
+        
+        <div class="sheet-price-row">
+          <span class="current-price" id="sheetPrice">$15</span>
+          <span class="price-info-icon">ⓘ</span>
+          <span class="old-price" id="sheetOldPrice">$240</span>
+          <span class="stock-badge" id="sheetStockBadge">● 1 left</span>
+        </div>
+
+        <!-- Quantity Adjuster Row -->
+        <div class="sheet-qty-row">
+          <span class="qty-label">Quantity</span>
+          <div class="qty-stepper">
+            <button class="stepper-btn" id="qtyMinusBtn">-</button>
+            <span class="stepper-val" id="qtyVal">1</span>
+            <button class="stepper-btn" id="qtyPlusBtn">+</button>
+          </div>
+          <span class="qty-total-calc" id="qtyTotalLabel">Total: $15.00</span>
+        </div>
+
+        <!-- Coupon code input row -->
+        <div class="coupon-box" id="couponBox">
+          <input type="text" id="couponInput" placeholder="Promo code (e.g. VENTE20, VIP50)">
+          <button class="btn-coupon-apply" id="applyCouponBtn">Apply</button>
+        </div>
+        <div class="coupon-alert" id="couponAlert" style="display:none;"></div>
+
+        <p class="sheet-description" id="sheetDesc">
+          Official Magic Patterns promotion — 1 year of Magic Patterns Starter. AI prototyping tool for product teams. Official price $240.
+        </p>
+
+        <div class="sheet-features" id="sheetFeatures">
+          <div class="feature-row">
+            <span class="feat-check">✓</span>
+            <span class="feat-text">Official source — genuine promotion</span>
+          </div>
+          <div class="feature-row">
+            <span class="feat-check">✓</span>
+            <span class="feat-text">Full 30-day auto-refund guarantee</span>
+          </div>
+          <div class="feature-row">
+            <span class="feat-check">✓</span>
+            <span class="feat-text">Instant automated delivery</span>
+          </div>
+        </div>
+
+        <!-- Big Blue Buy Button (Screenshot 4) -->
+        <button class="btn-sheet-buy" id="sheetBuyBtn">Buy · $15</button>
+
+        <!-- How to activate accordion (Screenshot 4) -->
+        <div class="how-to-accordion" id="howToAccordion">
+          <div class="how-to-header" id="accordionToggle">
+            <span>How to activate</span>
+            <span class="accordion-chevron">▾</span>
+          </div>
+          <div class="how-to-body" id="accordionBody">
+            <ol class="how-to-steps">
+              <li>Complete checkout to receive your instant digital key.</li>
+              <li>Open the official platform and paste the activation key.</li>
+              <li>Access is granted immediately with 100% full warranty coverage.</li>
+            </ol>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Deposit Sheet Modal -->
+  <div class="modal-backdrop" id="depositModal">
+    <div class="modal-sheet">
+      <div class="sheet-top-drag"><div class="drag-handle"></div></div>
+      <div class="sheet-header">
+        <h3 class="sheet-modal-title">+ Add funds</h3>
+        <button class="modal-close-btn" id="depositCloseBtn">✕</button>
+      </div>
+      <div class="deposit-form">
+        <p class="dep-desc">Select payment network & enter amount in USDT:</p>
+        
+        <div class="network-chips">
+          <button class="net-chip active" data-net="Binance Pay">🟡 Binance Pay</button>
+          <button class="net-chip" data-net="USDT (TON)">USDT (TON)</button>
+          <button class="net-chip" data-net="USDT (TRC-20)">TRC-20</button>
+          <button class="net-chip" data-net="USDT (BEP-20)">BEP-20</button>
+          <button class="net-chip" data-net="Telegram Stars">⭐ Stars</button>
+        </div>
+
+
+        <div class="deposit-amount-card">
+          <span class="currency-sign">$</span>
+          <input type="number" id="depositAmountInput" min="1" step="1" value="20" placeholder="20">
+        </div>
+
+        <button class="btn-sheet-buy" id="confirmDepositBtn">Generate Invoice</button>
+        
+        <div class="invoice-result" id="invoiceResult" style="display:none;">
+          <p class="invoice-label">Transfer payment to the address below:</p>
+          <div class="address-copy-row">
+            <code id="depositAddressCode">UQBYFi938472910294729482749284729482948274</code>
+            <button class="btn-copy-chip" id="copyAddressBtn">Copy</button>
+          </div>
+          <button class="btn-verify-blockchain" id="checkPaymentBtn">🔄 Check Payment Status</button>
+          <p class="dep-note">Credited automatically once network confirmation is received.</p>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- In-App Customer Support Ticket Modal -->
+  <div class="modal-backdrop" id="supportModal">
+    <div class="modal-sheet">
+      <div class="sheet-top-drag"><div class="drag-handle"></div></div>
+      <div class="sheet-header">
+        <h3 class="sheet-modal-title">Customer Support</h3>
+        <button class="modal-close-btn" id="supportCloseBtn">✕</button>
+      </div>
+      <div class="support-form">
+        <p class="dep-desc">Describe your request, issue, or warranty claim:</p>
+        <textarea id="supportMsgInput" rows="4" placeholder="Type your message here..."></textarea>
+        <button class="btn-sheet-buy" id="sendSupportTicketBtn">Submit Ticket</button>
+        <div id="supportStatus" class="ticket-status-msg" style="display:none;"></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Account Stats & Referral Modal -->
+  <div class="modal-backdrop" id="statsModal">
+    <div class="modal-sheet">
+      <div class="sheet-top-drag"><div class="drag-handle"></div></div>
+      <div class="sheet-header">
+        <h3 class="sheet-modal-title">Account & Partner Stats</h3>
+        <button class="modal-close-btn" id="statsCloseBtn">✕</button>
+      </div>
+      <div class="stats-grid">
+        <div class="stat-card">
+          <span class="stat-label">TOTAL SPENT</span>
+          <span class="stat-val" id="statSpent">$0.00</span>
+        </div>
+        <div class="stat-card">
+          <span class="stat-label">TOTAL ORDERS</span>
+          <span class="stat-val" id="statOrders">0</span>
+        </div>
+        <div class="stat-card">
+          <span class="stat-label">REFERRALS</span>
+          <span class="stat-val" id="statRefs">0</span>
+        </div>
+        <div class="stat-card">
+          <span class="stat-label">MEMBER SINCE</span>
+          <span class="stat-val" id="statMember">2026-09-01</span>
+        </div>
+      </div>
+
+      <div class="referral-box">
+        <h4>Referral Link (Earn 10% Commission)</h4>
+        <div class="ref-link-row">
+          <input type="text" id="refLinkInput" readonly value="https://t.me/Hidta3zbibot?start=ref">
+          <button class="btn-copy-chip" id="copyRefBtn">Copy</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <footer class="app-footer">
+    <span>@Veriyferbot</span>
+  </footer>
+
+  <script src="/static/app.js"></script>
+</body>
+</html>

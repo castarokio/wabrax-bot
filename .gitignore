@@ -1,0 +1,25 @@
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+.venv/
+env/
+venv/
+*.log
+
+# Environment & Credentials (security)
+.env
+
+# Database (keep local db secure)
+database/store.db
+database/*.db
+
+# Binaries & Tunnels
+cloudflared.exe
+*.exe
+
+# IDE & OS
+.vscode/
+.idea/
+.DS_Store
+Thumbs.db
