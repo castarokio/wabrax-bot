@@ -127,13 +127,13 @@ def get_admin_product_detail_keyboard(prod_id: int, is_active: bool) -> InlineKe
         inline_keyboard=[
             [
                 InlineKeyboardButton(
-                    text="💵 Edit Price",
+                    text="Edit Price",
                     style="primary",
                     icon_custom_emoji_id=EMOJI_IDS.get("USDT"),
                     callback_data=f"admin:edit_price:{prod_id}"
                 ),
                 InlineKeyboardButton(
-                    text="📝 Edit Description",
+                    text="Edit Description",
                     style="primary",
                     icon_custom_emoji_id=EMOJI_IDS.get("DIAMOND"),
                     callback_data=f"admin:edit_desc:{prod_id}"
@@ -141,13 +141,13 @@ def get_admin_product_detail_keyboard(prod_id: int, is_active: bool) -> InlineKe
             ],
             [
                 InlineKeyboardButton(
-                    text="🖼️ Edit Picture",
+                    text="Edit Picture",
                     style="primary",
                     icon_custom_emoji_id=EMOJI_IDS.get("PURPLE_FLASH"),
                     callback_data=f"admin:edit_pic:{prod_id}"
                 ),
                 InlineKeyboardButton(
-                    text="🏷️ Edit Name",
+                    text="Edit Name",
                     style="primary",
                     icon_custom_emoji_id=EMOJI_IDS.get("TAG_AT"),
                     callback_data=f"admin:edit_name:{prod_id}"
@@ -155,13 +155,13 @@ def get_admin_product_detail_keyboard(prod_id: int, is_active: bool) -> InlineKe
             ],
             [
                 InlineKeyboardButton(
-                    text="➕ Add Stock Items",
+                    text="Add Stock Items",
                     style="success",
                     icon_custom_emoji_id=EMOJI_IDS.get("PLUS_GREEN"),
                     callback_data=f"admin:stock_for:{prod_id}"
                 ),
                 InlineKeyboardButton(
-                    text="🗑️ Clear Stock",
+                    text="Clear Stock",
                     style="danger",
                     icon_custom_emoji_id=EMOJI_IDS.get("GARBAGE"),
                     callback_data=f"admin:clear_stock:{prod_id}"
@@ -176,13 +176,13 @@ def get_admin_product_detail_keyboard(prod_id: int, is_active: bool) -> InlineKe
             ],
             [
                 InlineKeyboardButton(
-                    text="❌ Delete Product",
+                    text="Delete Product",
                     style="danger",
                     icon_custom_emoji_id=EMOJI_IDS.get("CROSS_RED"),
                     callback_data=f"admin:del_prod:{prod_id}"
                 )
             ],
-            [InlineKeyboardButton(text="⬅ Back to Products", callback_data="admin:products")]
+            [InlineKeyboardButton(text="Back to Products", callback_data="admin:products")]
         ]
     )
 
@@ -191,7 +191,7 @@ def get_admin_users_keyboard() -> InlineKeyboardMarkup:
         inline_keyboard=[
             [
                 InlineKeyboardButton(
-                    text="👥 Browse All Registered Users",
+                    text="Browse All Registered Users",
                     style="primary",
                     icon_custom_emoji_id=EMOJI_IDS.get("ADD_PERSON"),
                     callback_data="admin:users_page:1"
@@ -199,7 +199,7 @@ def get_admin_users_keyboard() -> InlineKeyboardMarkup:
             ],
             [
                 InlineKeyboardButton(
-                    text="🔍 Search User (ID or @username)",
+                    text="Search User (ID or @username)",
                     style="primary",
                     icon_custom_emoji_id=EMOJI_IDS.get("QUESTION_ICON"),
                     callback_data="admin:user_lookup"
@@ -207,20 +207,20 @@ def get_admin_users_keyboard() -> InlineKeyboardMarkup:
             ],
             [
                 InlineKeyboardButton(
-                    text="💵 Direct Balance Adjustment",
+                    text="Direct Balance Adjustment",
                     style="success",
                     icon_custom_emoji_id=EMOJI_IDS.get("USDT"),
                     callback_data="admin:balance_adjust"
                 )
             ],
-            [InlineKeyboardButton(text="⬅ Admin Dashboard", callback_data="admin:main")]
+            [InlineKeyboardButton(text="Admin Dashboard", callback_data="admin:main")]
         ]
     )
 
 def get_admin_users_list_keyboard(users: list, page: int, total_count: int, per_page: int = 8) -> InlineKeyboardMarkup:
     rows = []
     for u in users:
-        ban_mark = " 🚫" if u.get("is_banned") == 1 else ""
+        ban_mark = " [BANNED]" if u.get("is_banned") == 1 else ""
         uname = f"@{u['username']}" if u.get("username") else f"ID: {u['user_id']}"
         bal = f"${float(u.get('balance', 0)):.2f}"
         rows.append([
@@ -233,30 +233,30 @@ def get_admin_users_list_keyboard(users: list, page: int, total_count: int, per_
 
     nav_row = []
     if page > 1:
-        nav_row.append(InlineKeyboardButton(text="⬅ Prev", callback_data=f"admin:users_page:{page - 1}"))
+        nav_row.append(InlineKeyboardButton(text="Prev", callback_data=f"admin:users_page:{page - 1}"))
     max_pages = max(1, (total_count + per_page - 1) // per_page)
     nav_row.append(InlineKeyboardButton(text=f"Page {page}/{max_pages}", callback_data=f"admin:users_page:{page}"))
     if page < max_pages:
-        nav_row.append(InlineKeyboardButton(text="Next ➡", callback_data=f"admin:users_page:{page + 1}"))
+        nav_row.append(InlineKeyboardButton(text="Next", callback_data=f"admin:users_page:{page + 1}"))
 
     rows.append(nav_row)
-    rows.append([InlineKeyboardButton(text="⬅ Back to User Manager", callback_data="admin:users")])
+    rows.append([InlineKeyboardButton(text="Back to User Manager", callback_data="admin:users")])
     return InlineKeyboardMarkup(inline_keyboard=rows)
 
 def get_admin_user_card_keyboard(target_uid: int, is_banned: bool) -> InlineKeyboardMarkup:
-    ban_btn_text = "✅ Unban User" if is_banned else "🚫 Ban User"
+    ban_btn_text = "Unban User" if is_banned else "Ban User"
     ban_btn_style = "success" if is_banned else "danger"
     return InlineKeyboardMarkup(
         inline_keyboard=[
             [
                 InlineKeyboardButton(
-                    text="➕ Add Funds (+)",
+                    text="Add Funds (+)",
                     style="success",
                     icon_custom_emoji_id=EMOJI_IDS.get("PLUS_GREEN"),
                     callback_data=f"admin:add_funds:{target_uid}"
                 ),
                 InlineKeyboardButton(
-                    text="➖ Remove Funds (-)",
+                    text="Remove Funds (-)",
                     style="danger",
                     icon_custom_emoji_id=EMOJI_IDS.get("CROSS_RED"),
                     callback_data=f"admin:rem_funds:{target_uid}"
@@ -271,15 +271,16 @@ def get_admin_user_card_keyboard(target_uid: int, is_banned: bool) -> InlineKeyb
             ],
             [
                 InlineKeyboardButton(
-                    text="📦 View Order History",
+                    text="View Order History",
                     style="primary",
                     icon_custom_emoji_id=EMOJI_IDS.get("CART"),
                     callback_data=f"admin:user_orders:{target_uid}"
                 )
             ],
-            [InlineKeyboardButton(text="⬅ Back to Users", callback_data="admin:users_page:1")]
+            [InlineKeyboardButton(text="Back to Users", callback_data="admin:users_page:1")]
         ]
     )
+
 
 
 def get_admin_admins_keyboard(admins: list) -> InlineKeyboardMarkup:

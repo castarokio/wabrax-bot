@@ -51,6 +51,10 @@ class I18nMiddleware(BaseMiddleware):
             data["user_data"] = u_data
 
         data["lang"] = user_lang
-        data["t"] = lambda key, **kw: i18n.get(key, lang=user_lang, **kw)
+        def t_func(key: str, **kw):
+            return i18n.get(key, lang=user_lang, **kw)
+        t_func.lang = user_lang
+        data["t"] = t_func
         
         return await handler(event, data)
+

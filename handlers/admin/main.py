@@ -179,17 +179,17 @@ async def cb_admin_prod_view(callback: CallbackQuery):
         return
 
     stock = prod.get("stock_count", 0)
-    brand_icon = tg_e(prod.get("icon_brand", "CART"))
     status_label = "Active" if prod.get("is_active") == 1 else "Inactive"
 
     text = (
-        f"{brand_icon} <b>Product #{prod['id']}: {prod['name']}</b>\n\n"
+        f"{tg_e('VIP_BADGE_NEW')} <b>Product #{prod['id']}: {prod['name']}</b>\n\n"
         f"• Description: {prod['description']}\n"
         f"• Price: <b>{prod['price']} USDT</b>\n"
         f"• In-Stock Units: <b>{stock}</b>\n"
         f"• Store Status: <b>{status_label}</b>\n"
         f"• Type: <code>{prod['item_type']}</code>"
     )
+
     await callback.message.edit_text(
         text,
         reply_markup=get_admin_product_detail_keyboard(prod_id, prod.get("is_active") == 1),

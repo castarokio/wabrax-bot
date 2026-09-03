@@ -386,30 +386,29 @@ async def cb_admin_reject_deposit(callback: CallbackQuery, bot: Bot):
 
 # ==================== SUPPORT TICKETS ====================
 @router.callback_query(F.data == "menu:support")
-async def show_support(callback: CallbackQuery, state: FSMContext):
+async def show_support(callback: CallbackQuery, t, state: FSMContext):
     await state.clear()
     text = (
-        f"{tg_e('MAIL')} <b>Customer Support Desk</b>\n\n"
-        f"<blockquote>Need assistance with an order, activation key, or question?\n\n"
-        f"Tap the button below to submit a support ticket. Our team will review your message and reply to you directly right here in the bot.</blockquote>"
+        f"{tg_e('MAIL')} <b>{t('support_desk_title')}</b>\n\n"
+        f"<blockquote>{t('support_desk_quote')}</blockquote>"
     )
-    await callback.message.edit_text(text, reply_markup=get_support_keyboard(), parse_mode="HTML")
+    await callback.message.edit_text(text, reply_markup=get_support_keyboard(t), parse_mode="HTML")
     await callback.answer()
 
 @router.callback_query(F.data == "support:new_ticket")
-async def prompt_support_ticket(callback: CallbackQuery, state: FSMContext):
+async def prompt_support_ticket(callback: CallbackQuery, t, state: FSMContext):
     await state.set_state(UserMenuStates.waiting_support_message)
     text = (
-        f"{tg_e('MAIL')} <b>Submit Support Ticket</b>\n\n"
-        f"<blockquote>Please type your inquiry or problem in detail below:</blockquote>\n\n"
-        f"<code>/cancel</code> — stop"
+        f"{tg_e('MAIL')} <b>{t('support_prompt_title')}</b>\n\n"
+        f"<blockquote>{t('support_prompt_body')}</blockquote>\n\n"
+        f"<code>/cancel</code>"
     )
     kb = InlineKeyboardMarkup(inline_keyboard=[[InlineKeyboardButton(text="<", callback_data="menu:support")]])
     await callback.message.edit_text(text, reply_markup=kb, parse_mode="HTML")
     await callback.answer()
 
 @router.message(UserMenuStates.waiting_support_message)
-async def process_support_ticket(message: Message, state: FSMContext, bot: Bot):
+async def process_support_ticket(message: Message, t, state: FSMContext, bot: Bot):
     if message.text and message.text.startswith("/"):
         await state.clear()
         return
@@ -423,10 +422,10 @@ async def process_support_ticket(message: Message, state: FSMContext, bot: Bot):
     await state.clear()
 
     await message.answer(
-        f"{tg_e('CHECKMARK_GREEN')} <b>Ticket #{ticket_id} Created!</b>\n\n"
-        f"Our support team has been notified. You will receive a direct notification here as soon as an agent replies.",
+        f"{tg_e('CHECKMARK_GREEN')} <b>{t('support_ticket_created', ticket_id=ticket_id)}</b>",
         parse_mode="HTML"
     )
+
 
     # Notify Admins with quick Reply button
     admin_alert = (

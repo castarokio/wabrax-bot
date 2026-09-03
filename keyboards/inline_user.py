@@ -234,12 +234,13 @@ def get_topup_history_keyboard() -> InlineKeyboardMarkup:
         ]
     )
 
-def get_support_keyboard() -> InlineKeyboardMarkup:
+def get_support_keyboard(t=None) -> InlineKeyboardMarkup:
+    btn_text = t("btn_submit_ticket") if t else "Submit Support Ticket"
     return InlineKeyboardMarkup(
         inline_keyboard=[
             [
                 InlineKeyboardButton(
-                    text="Submit Support Ticket",
+                    text=btn_text,
                     style="danger",
                     icon_custom_emoji_id=EMOJI_IDS["MAIL"],
                     callback_data="support:new_ticket"
@@ -248,6 +249,7 @@ def get_support_keyboard() -> InlineKeyboardMarkup:
             [InlineKeyboardButton(text="<", style="primary", callback_data="back_to_main")]
         ]
     )
+
 
 def get_reseller_api_keyboard(has_key: bool) -> InlineKeyboardMarkup:
     """Matches user screenshot media_1788447712306.png."""
@@ -275,19 +277,23 @@ def get_reseller_api_keyboard(has_key: bool) -> InlineKeyboardMarkup:
     )
 
 
-def get_product_quantity_keyboard(product_id: int, stock_count: int, category_id: int = 1) -> InlineKeyboardMarkup:
+def get_product_quantity_keyboard(product_id: int, stock_count: int, category_id: int = 1, t=None) -> InlineKeyboardMarkup:
     row1 = []
     for qty in [1, 2, 3]:
         if qty <= stock_count:
             row1.append(InlineKeyboardButton(text=str(qty), style="success", callback_data=f"buy_qty:{product_id}:{qty}"))
     
+    custom_lbl = t("shop_custom_qty") if t else "Custom"
+    out_lbl = t("shop_out_of_stock") if t else "Out of stock"
+    back_lbl = t("btn_back") if t else "<"
+
     kb = []
     if row1:
         kb.append(row1)
-        kb.append([InlineKeyboardButton(text="Custom", style="primary", callback_data=f"buy_custom:{product_id}")])
+        kb.append([InlineKeyboardButton(text=custom_lbl, style="primary", callback_data=f"buy_custom:{product_id}")])
     else:
-        kb.append([InlineKeyboardButton(text="Out of stock", style="danger", callback_data="out_of_stock")])
-    kb.append([InlineKeyboardButton(text="⬅ Back", style="danger", callback_data=f"shop_cat:{category_id}")])
+        kb.append([InlineKeyboardButton(text=out_lbl, style="danger", callback_data="out_of_stock")])
+    kb.append([InlineKeyboardButton(text=back_lbl, style="danger", callback_data=f"shop_cat:{category_id}")])
     return InlineKeyboardMarkup(inline_keyboard=kb)
 
 
@@ -332,9 +338,9 @@ def get_orders_keyboard(t, orders: list) -> InlineKeyboardMarkup:
 def get_language_keyboard() -> InlineKeyboardMarkup:
     return InlineKeyboardMarkup(
         inline_keyboard=[
-            [InlineKeyboardButton(text="English (UK/US)", style="primary", icon_custom_emoji_id=EMOJI_IDS["META_VERIFIED_BLUE"], callback_data="set_lang:en")],
-            [InlineKeyboardButton(text="Русский (RU)", style="success", icon_custom_emoji_id=EMOJI_IDS["CHECKMARK_GREEN_BTN"], callback_data="set_lang:ru")],
-            [InlineKeyboardButton(text="العربية (AR)", style="danger", icon_custom_emoji_id=EMOJI_IDS["META_VERIFIED_RED"], callback_data="set_lang:ar")],
+            [InlineKeyboardButton(text="English", style="primary", icon_custom_emoji_id="5278449725144582811", callback_data="set_lang:en")],
+            [InlineKeyboardButton(text="Русский", style="success", icon_custom_emoji_id=EMOJI_IDS.get("CHECKMARK_GREEN_BTN", "6296367896398399651"), callback_data="set_lang:ru")],
+            [InlineKeyboardButton(text="العربية", style="danger", icon_custom_emoji_id="5859296708504063489", callback_data="set_lang:ar")],
             [InlineKeyboardButton(text="<", style="primary", callback_data="back_to_main")]
         ]
     )
@@ -342,8 +348,14 @@ def get_language_keyboard() -> InlineKeyboardMarkup:
 def get_shop_categories_keyboard(categories: list, t) -> InlineKeyboardMarkup:
     keyboard = []
     styles = ["primary", "success", "danger"]
+    lang = getattr(t, "lang", "en")
     for i, cat in enumerate(categories):
-        name = cat.get("name_en")
+        if lang == "ar":
+            name = cat.get("name_ar") or cat.get("name_en")
+        elif lang == "ru":
+            name = cat.get("name_ru") or cat.get("name_en")
+        else:
+            name = cat.get("name_en")
         s = styles[i % len(styles)]
         keyboard.append([InlineKeyboardButton(
             text=name,
@@ -360,10 +372,12 @@ def get_products_keyboard(products: list, t) -> InlineKeyboardMarkup:
         stock = p.get("stock_count", 0)
         price_str = f"${p['price']:.2f}"
         if stock > 0:
-            btn_text = f"{p['name']} | {price_str} | 📦 {stock}"
+            stock_txt = t("shop_stock_units", stock=stock) if t else f"{stock} pcs"
+            btn_text = f"{p['name']} | {price_str} | {stock_txt}"
             btn_style = "success"
         else:
-            btn_text = f"{p['name']} | {price_str} | Out of stock"
+            out_txt = t("shop_out_of_stock") if t else "Out of stock"
+            btn_text = f"{p['name']} | {price_str} | {out_txt}"
             btn_style = "danger"
 
         keyboard.append([InlineKeyboardButton(
@@ -372,8 +386,9 @@ def get_products_keyboard(products: list, t) -> InlineKeyboardMarkup:
             icon_custom_emoji_id=EMOJI_IDS.get(p.get("icon_brand", "FLAME_RED"), EMOJI_IDS["FLAME_RED"]),
             callback_data=f"shop_prod:{p['id']}"
         )])
-    keyboard.append([InlineKeyboardButton(text="⬅ Back", style="danger", callback_data="menu:shop")])
+    keyboard.append([InlineKeyboardButton(text=t("btn_back") if t else "<", style="danger", callback_data="menu:shop")])
     return InlineKeyboardMarkup(inline_keyboard=keyboard)
+
 
 
 def get_language_keyboard() -> InlineKeyboardMarkup:
