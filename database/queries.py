@@ -276,48 +276,14 @@ async def buy_product_batch(user_id: int, product_id: int, quantity: int = 1):
 
         delivered_items = []
 
-        # ==================== 1. REAL ROBIXE COURSERA INTEGRATION ====================
-        if "coursera" in prod_name.lower():
-            from services.robixe import robixe_client
-            robixe_token = await robixe_client.get_token()
-            if robixe_token:
-                for _ in range(quantity):
-                    link_res = await robixe_client.create_activation_link()
-                    full_url = link_res.get("full_url")
-                    if full_url:
-                        delivered_items.append(f"Coursera Premium Activation Link:\n{full_url}")
-                    else:
-                        logger.warning(f"Robixe returned without full_url: {link_res}")
-
-        # ==================== 2. REAL VENTEBOT RESELLER INTEGRATION ====================
-        if not delivered_items:
-            from services.ventebot import ventebot_client
-            ventebot_key = await ventebot_client.get_api_key()
-            if ventebot_key:
-                vb_pid = p_dict.get("ventebot_product_id") or p_dict["id"]
-                try:
-                    vb_res = await ventebot_client.create_order(
-                        product_id=vb_pid,
-                        quantity=quantity,
-                        customer_reference=f"user_{user_id}"
-                    )
-                    if vb_res.get("success") and vb_res.get("items"):
-                        delivered_items = [str(itm) for itm in vb_res["items"]]
-                    else:
-                        logger.info(f"VenteBot upstream response: {vb_res.get('message', vb_res)}")
-                except Exception as ex:
-                    logger.warning(f"VenteBot upstream call exception: {ex}")
-
-        # ==================== 3. LOCAL STOCK FALLBACK ====================
-        if not delivered_items:
-            s_cur = await db.execute(
-                "SELECT id, content FROM stock_items WHERE product_id = ? AND is_sold = 0 LIMIT ?",
-                (product_id, quantity)
-            )
-            stock_rows = await s_cur.fetchall()
-            if len(stock_rows) < quantity:
-                return False, "This product is currently out of stock. Please check back shortly.", None
-
+        # ==================== 1. LOCAL IN-HOUSE STOCK FIRST ====================
+        # If admin added stock to this product, ALWAYS extract from local stock first!
+        s_cur = await db.execute(
+            "SELECT id, content FROM stock_items WHERE product_id = ? AND is_sold = 0 LIMIT ?",
+            (product_id, quantity)
+        )
+        stock_rows = await s_cur.fetchall()
+        if len(stock_rows) >= quantity:
             for s_row in stock_rows:
                 s_id = s_row["id"]
                 content = s_row["content"]
@@ -326,6 +292,48 @@ async def buy_product_batch(user_id: int, product_id: int, quantity: int = 1):
                     "UPDATE stock_items SET is_sold = 1, sold_to_user_id = ?, sold_at = CURRENT_TIMESTAMP WHERE id = ?",
                     (user_id, s_id)
                 )
+            logger.info(f"Delivered {quantity} item(s) of #{product_id} ({prod_name}) from LOCAL in-house stock.")
+
+        # ==================== 2. UPSTREAM WHOLESALE FALLBACK (VENTEBOT & ROBIXE) ====================
+        # Only if local stock was NOT added or is depleted, attempt upstream wholesale:
+        if not delivered_items:
+            # Check Robixe if Coursera
+            if "coursera" in prod_name.lower():
+                from services.robixe import robixe_client
+                robixe_token = await robixe_client.get_token()
+                if robixe_token:
+                    for _ in range(quantity):
+                        link_res = await robixe_client.create_activation_link()
+                        full_url = link_res.get("full_url")
+                        if full_url:
+                            delivered_items.append(f"Coursera Premium Activation Link:\n{full_url}")
+                        else:
+                            logger.warning(f"Robixe returned without full_url: {link_res}")
+
+            # Check VenteBot Wholesale API
+            if not delivered_items:
+                from services.ventebot import ventebot_client
+                ventebot_key = await ventebot_client.get_api_key()
+                if ventebot_key:
+                    vb_pid = p_dict.get("ventebot_product_id") or p_dict["id"]
+                    try:
+                        vb_res = await ventebot_client.create_order(
+                            product_id=vb_pid,
+                            quantity=quantity,
+                            customer_reference=f"user_{user_id}"
+                        )
+                        if vb_res.get("success") and vb_res.get("items"):
+                            delivered_items = [str(itm) for itm in vb_res["items"]]
+                            logger.info(f"Delivered {quantity} item(s) from VenteBot upstream order: {vb_res.get('order_id')}")
+                        else:
+                            logger.info(f"VenteBot upstream response: {vb_res.get('message', vb_res)}")
+                    except Exception as ex:
+                        logger.warning(f"VenteBot upstream call exception: {ex}")
+
+        # If neither local stock nor upstream was able to fulfill:
+        if not delivered_items:
+            return False, "This product is currently out of stock. Please check back shortly.", None
+
 
 
         # Deduct balance
