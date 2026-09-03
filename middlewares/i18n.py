@@ -34,6 +34,20 @@ class Localization:
 
 i18n = Localization()
 
+import time
+
+_USER_CACHE: Dict[int, tuple] = {} # user_id: (u_data, user_lang, expire_timestamp)
+
+def invalidate_user_cache(user_id: int):
+    _USER_CACHE.pop(user_id, None)
+
+def set_user_cached_lang(user_id: int, lang: str):
+    if user_id in _USER_CACHE:
+        u_data, _, exp = _USER_CACHE[user_id]
+        if isinstance(u_data, dict):
+            u_data["language"] = lang
+        _USER_CACHE[user_id] = (u_data, lang, exp)
+
 class I18nMiddleware(BaseMiddleware):
     async def __call__(
         self,
@@ -45,9 +59,14 @@ class I18nMiddleware(BaseMiddleware):
         user_lang = DEFAULT_LANGUAGE
 
         if user:
-            # Check DB or create user record
-            u_data = await get_or_create_user(user.id, user.username or "", user.first_name or "")
-            user_lang = u_data.get("language") or DEFAULT_LANGUAGE
+            now = time.monotonic()
+            cached = _USER_CACHE.get(user.id)
+            if cached and now < cached[2]:
+                u_data, user_lang = cached[0], cached[1]
+            else:
+                u_data = await get_or_create_user(user.id, user.username or "", user.first_name or "")
+                user_lang = u_data.get("language") or DEFAULT_LANGUAGE
+                _USER_CACHE[user.id] = (u_data, user_lang, now + 120.0)
             data["user_data"] = u_data
 
         data["lang"] = user_lang
@@ -57,4 +76,5 @@ class I18nMiddleware(BaseMiddleware):
         data["t"] = t_func
         
         return await handler(event, data)
+
 

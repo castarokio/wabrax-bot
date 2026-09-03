@@ -450,14 +450,28 @@ async def get_user_stats(user_id: int) -> dict:
         r_cur = await db.execute("SELECT COUNT(*) as refs FROM users WHERE referrer_id = ?", (user_id,))
         r_stat = await r_cur.fetchone()
 
+        ord_cnt = o_stat["count"] if o_stat else 0
+        sp_amt = round(o_stat["spent"], 2) if o_stat else 0.0
+        ref_cnt = r_stat["refs"] if r_stat else 0
+
         return {
             "user_id": user_id,
             "balance": u["balance"] if u else 0.0,
-            "total_orders": o_stat["count"] if o_stat else 0,
-            "total_spent": o_stat["spent"] if o_stat else 0.0,
-            "referrals_count": r_stat["refs"] if r_stat else 0,
+            "orders": ord_cnt,
+            "total_orders": ord_cnt,
+            "items": ord_cnt,
+            "spent": sp_amt,
+            "total_spent": sp_amt,
+            "referrals": ref_cnt,
+            "referrals_count": ref_cnt,
+            "invites": ref_cnt,
+            "topups": 0,
+            "withdrawn": 0.0,
+            "pending": 0,
+            "last_order": "—",
             "member_since": u["joined_at"][:10] if u and u["joined_at"] else "2026-09-01"
         }
+
 
 async def get_system_setting(key: str, default: str = "") -> str:
     async with get_db() as db:

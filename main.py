@@ -36,8 +36,14 @@ async def main():
     logger.info("Initializing Store Database...")
     await init_db()
 
-    session = AiohttpSession()
-    session._connector_init["family"] = socket.AF_INET
+    session = AiohttpSession(timeout=20.0)
+    session._connector_init.update({
+        "family": socket.AF_INET,
+        "limit": 100,
+        "ttl_dns_cache": 300,
+        "keepalive_timeout": 30,
+        "enable_cleanup_closed": True
+    })
 
     bot = Bot(
         token=BOT_TOKEN,
@@ -45,6 +51,7 @@ async def main():
         default=DefaultBotProperties(parse_mode=ParseMode.HTML)
     )
     dp = Dispatcher()
+
 
     set_bot_instance(bot)
     # Start WebApp HTTP Server on port 8080 with bot reference
@@ -90,10 +97,16 @@ async def main():
 
     while True:
         try:
-            await dp.start_polling(bot)
+            await dp.start_polling(
+                bot,
+                polling_timeout=15,
+                handle_in_background=True,
+                drop_pending_updates=True
+            )
         except Exception as e:
-            logger.error(f"Polling connection interrupted: {e}. Reconnecting in 3 seconds...")
-            await asyncio.sleep(3)
+            logger.error(f"Polling connection interrupted: {e}. Reconnecting in 2 seconds...")
+            await asyncio.sleep(2)
+
 
 if __name__ == "__main__":
     try:
