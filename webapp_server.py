@@ -127,8 +127,9 @@ async def api_post_buy(request):
             if coupon_obj:
                 discount_pct = coupon_obj["discount_percent"]
 
-        success, total_or_err, items = await buy_product_batch(user_id, product_id, quantity)
+        success, total_or_err, items = await buy_product_batch(user_id, product_id, quantity, discount_percent=discount_pct)
         if not success:
+
             return web.json_response({"ok": False, "error": total_or_err}, status=200)
 
         if coupon_obj:

@@ -10,6 +10,12 @@ from config.emojis import tg_e
 
 router = Router(name="profile")
 
+async def safe_edit_text(message: Message, text: str, reply_markup=None):
+    if message.photo:
+        await message.delete()
+        return await message.answer(text, reply_markup=reply_markup, parse_mode="HTML")
+    return await message.edit_text(text, reply_markup=reply_markup, parse_mode="HTML")
+
 @router.callback_query(F.data == "menu:profile")
 async def show_profile(callback: CallbackQuery, t):
     user = await get_user(callback.from_user.id)
@@ -20,12 +26,12 @@ async def show_profile(callback: CallbackQuery, t):
     text = (
         f"{tg_e('VIP_YELLOW')} <b>{t('profile_title')}</b>\n\n"
         f"<b>ID:</b> <code>{callback.from_user.id}</code>\n"
-        f"<b>Balance:</b> {balance} USDT\n"
+        f"<b>Balance:</b> ${balance:.2f} USDT\n"
         f"<b>Joined:</b> {joined}\n"
         f"<b>Shopping in:</b> {mode_desc.split(':')[-1].strip()}"
     )
 
-    await callback.message.edit_text(text, reply_markup=get_profile_keyboard(t), parse_mode="HTML")
+    await safe_edit_text(callback.message, text, reply_markup=get_profile_keyboard(t))
     await callback.answer()
 
 @router.callback_query(F.data.in_(["profile:stats", "profile:stats_refresh"]))
@@ -35,7 +41,7 @@ async def show_stats(callback: CallbackQuery, t):
         f"{tg_e('CREDIT_CARD')} <b>{t('stats_title')}</b>\n\n"
         f"<b>Orders:</b> {stats['orders']}\n"
         f"<b>Items bought:</b> {stats['items']}\n"
-        f"<b>Total spent:</b> {stats['spent']} USDT\n"
+        f"<b>Total spent:</b> ${stats['spent']:.2f} USDT\n"
         f"<b>Last order:</b> {stats['last_order']}\n\n"
         f"<b>Top-ups:</b> {stats['topups']}\n"
         f"<b>Withdrawn:</b> {stats['withdrawn']} USDT\n"
@@ -43,7 +49,7 @@ async def show_stats(callback: CallbackQuery, t):
         f"<b>Referrals:</b> {stats['referrals']}\n"
         f"<b>Invites sent:</b> {stats['invites']}"
     )
-    await callback.message.edit_text(text, reply_markup=get_stats_keyboard(t), parse_mode="HTML")
+    await safe_edit_text(callback.message, text, reply_markup=get_stats_keyboard(t))
     await callback.answer()
 
 @router.callback_query(F.data == "profile:notifications")
@@ -53,7 +59,7 @@ async def show_notifications(callback: CallbackQuery, t):
         f"{tg_e('MAIL')} <b>{t('notif_title')}</b>\n\n"
         f"<blockquote>{t('notif_quote')}</blockquote>"
     )
-    await callback.message.edit_text(text, reply_markup=get_notifications_keyboard(t, user), parse_mode="HTML")
+    await safe_edit_text(callback.message, text, reply_markup=get_notifications_keyboard(t, user))
     await callback.answer()
 
 @router.callback_query(F.data.startswith("notif_toggle:"))
@@ -78,7 +84,9 @@ async def show_orders(callback: CallbackQuery, t):
             date_str = str(o["created_at"]).replace("T", " ")[:16]
             text += f"• <code>{o['product_name']}</code> · {o['price']} USDT · {date_str}\n"
 
-    await callback.message.edit_text(text, reply_markup=get_orders_keyboard(t, orders), parse_mode="HTML")
+    await safe_edit_text(callback.message, text, reply_markup=get_orders_keyboard(t, orders))
+    await callback.answer()
+
     await callback.answer()
 
 @router.callback_query(F.data.startswith("order_view:"))

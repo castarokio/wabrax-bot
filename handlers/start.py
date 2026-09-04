@@ -1,7 +1,8 @@
 from aiogram import Router, F
 from aiogram.types import Message, CallbackQuery
-from aiogram.filters import CommandStart, Command
+from aiogram.filters import CommandStart, Command, CommandObject
 from database.queries import get_or_create_user, get_user, get_in_stock_summary
+
 from keyboards.inline_user import get_main_menu_keyboard
 from config.settings import BOT_USERNAME, STORE_NAME
 from config.emojis import tg_e
@@ -78,7 +79,8 @@ async def cmd_cancel(message: Message, state: FSMContext, t):
     await message.answer(f"{tg_e('CHECKMARK_GREEN')} Action cancelled.\n\n" + text, reply_markup=get_main_menu_keyboard(t), parse_mode="HTML")
 
 @router.message(CommandStart())
-async def cmd_start(message: Message, t, state: FSMContext, command: CommandStart = None):
+async def cmd_start(message: Message, t, state: FSMContext, command: CommandObject = None):
+
     await state.clear()
     referrer_id = None
     if command and command.args:

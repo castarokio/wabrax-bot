@@ -250,7 +250,7 @@ async def get_store_metrics():
             "available_stock": stock_count
         }
 
-async def buy_product_batch(user_id: int, product_id: int, quantity: int = 1):
+async def buy_product_batch(user_id: int, product_id: int, quantity: int = 1, discount_percent: float = 0.0):
     if quantity <= 0:
         return False, "Invalid quantity", None
     async with get_db() as db:
@@ -268,11 +268,14 @@ async def buy_product_batch(user_id: int, product_id: int, quantity: int = 1):
         p_dict = dict(p_row)
         price = p_dict["price"]
         total_cost = round(price * quantity, 2)
+        if discount_percent > 0:
+            total_cost = round(total_cost * (1.0 - (discount_percent / 100.0)), 2)
         prod_name = p_dict["name"]
 
         if balance < total_cost:
             deficit = round(total_cost - balance, 2)
             return False, f"Insufficient balance. Total is ${total_cost:.2f} USDT (Need +${deficit:.2f} USDT).", None
+
 
         delivered_items = []
 
@@ -491,13 +494,16 @@ async def set_system_setting(key: str, value: str):
         await db.commit()
 
 async def update_product_field(product_id: int, field: str, value):
-    """Safely update a product attribute (name, price, description, banner_image, icon_brand, is_active)."""
-    allowed_fields = {"name", "price", "description", "banner_image", "icon_brand", "is_active", "item_type"}
+    """Safely update a product attribute (name, price, description, image_url, banner_image, icon_brand, is_active)."""
+    if field == "banner_image":
+        field = "image_url"
+    allowed_fields = {"name", "price", "description", "image_url", "icon_brand", "is_active", "item_type"}
     if field not in allowed_fields:
         raise ValueError(f"Field '{field}' is not allowed for update.")
     async with get_db() as db:
         await db.execute(f"UPDATE products SET {field} = ? WHERE id = ?", (value, product_id))
         await db.commit()
+
 
 async def clear_product_stock(product_id: int) -> int:
     """Clear all unsold stock items for a product."""

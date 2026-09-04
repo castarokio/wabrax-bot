@@ -605,11 +605,11 @@ async def cmd_redeem_promo(message: Message, t, state: FSMContext):
         return
 
     code = parts[1].strip()
-    from database.queries import validate_coupon, apply_coupon_use, update_user_balance, get_user
+    from database.queries import validate_coupon, apply_coupon_use, update_balance, get_user
     coupon = await validate_coupon(code)
     if not coupon:
         await message.answer(
-            f"{tg_e('RED_BUTTON')} <b>Invalid or Expired Code</b>\n\n"
+            f"{tg_e('CROSS_RED')} <b>Invalid or Expired Code</b>\n\n"
             f"The promo code <code>{code}</code> could not be applied or has reached its usage limit.",
             parse_mode="HTML"
         )
@@ -619,18 +619,19 @@ async def cmd_redeem_promo(message: Message, t, state: FSMContext):
     bonus_amount = round(coupon["discount_percent"] * 0.15, 2)
     user = await get_user(message.from_user.id)
     cur_bal = user.get("balance", 0.0) if user else 0.0
-    new_bal = cur_bal + bonus_amount
-    await update_user_balance(message.from_user.id, new_bal)
+    await update_balance(message.from_user.id, bonus_amount)
     await apply_coupon_use(coupon["id"])
+    new_bal = cur_bal + bonus_amount
 
     await message.answer(
-        f"{tg_e('FIRE')} <b>Promo Code Redeemed!</b>\n\n"
+        f"{tg_e('EPIC_NEW')} <b>Promo Code Redeemed!</b>\n\n"
         f"Code: <code>{coupon['code']}</code>\n"
-        f"Discount / Bonus: <b>{coupon['discount_percent']}% (${bonus_amount:.2f} USDT)</b>\n"
+        f"Discount / Bonus: <b>{coupon['discount_percent']}% (+${bonus_amount:.2f} USDT)</b>\n"
         f"New Balance: <b>${new_bal:.2f} USDT</b>\n\n"
         f"<i>Funds are ready to spend in the store or Mini App!</i>",
         parse_mode="HTML"
     )
+
 
 
 @router.callback_query(F.data.startswith("set_lang:"))
@@ -638,9 +639,20 @@ async def set_language(callback: CallbackQuery, t, state: FSMContext):
     await state.clear()
     new_lang = callback.data.split(":")[1]
     await update_user_language(callback.from_user.id, new_lang)
-    from middlewares.i18n import i18n
+    
+    from middlewares.i18n import i18n, set_user_cached_lang
+    set_user_cached_lang(callback.from_user.id, new_lang)
+    
     new_t = lambda k, **kw: i18n.get(k, lang=new_lang, **kw)
+    new_t.lang = new_lang
+
     from handlers.start import build_welcome_text
     text = await build_welcome_text(callback.from_user.id, new_t)
-    await callback.message.edit_text(text, reply_markup=get_main_menu_keyboard(new_t), parse_mode="HTML")
+    kb = get_main_menu_keyboard(new_t)
+    if callback.message.photo:
+        await callback.message.delete()
+        await callback.message.answer(text, reply_markup=kb, parse_mode="HTML")
+    else:
+        await callback.message.edit_text(text, reply_markup=kb, parse_mode="HTML")
     await callback.answer("Language updated / Язык обновлен / تم تغيير اللغة")
+

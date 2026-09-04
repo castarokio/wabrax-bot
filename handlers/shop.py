@@ -145,8 +145,13 @@ async def prompt_custom_qty(callback: CallbackQuery, t, state: FSMContext):
         f"<code>/cancel</code>"
     )
     kb = InlineKeyboardMarkup(inline_keyboard=[[InlineKeyboardButton(text=t("btn_back"), callback_data=f"shop_prod:{prod_id}")]])
-    await callback.message.edit_text(text, reply_markup=kb, parse_mode="HTML")
+    if callback.message.photo:
+        await callback.message.delete()
+        await callback.message.answer(text, reply_markup=kb, parse_mode="HTML")
+    else:
+        await callback.message.edit_text(text, reply_markup=kb, parse_mode="HTML")
     await callback.answer()
+
 
 @router.message(ShopStates.waiting_custom_qty)
 async def process_custom_qty_input(message: Message, t, state: FSMContext):
@@ -235,10 +240,15 @@ async def process_purchase(message_or_callback, user_id: int, prod_id: int, qty:
     )
 
     if is_callback and query:
-        await query.message.edit_text(text, reply_markup=kb, parse_mode="HTML")
+        if query.message.photo:
+            await query.message.delete()
+            await query.message.answer(text, reply_markup=kb, parse_mode="HTML")
+        else:
+            await query.message.edit_text(text, reply_markup=kb, parse_mode="HTML")
         await query.answer()
     else:
         await message_or_callback.answer(text, reply_markup=kb, parse_mode="HTML")
+
 
 
 @router.callback_query(F.data == "out_of_stock")

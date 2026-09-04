@@ -235,9 +235,13 @@ async def cb_stock_for_prod(callback: CallbackQuery, state: FSMContext):
 
 @router.message(AdminStates.waiting_stock_for_prod)
 async def process_stock_for_prod(message: Message, state: FSMContext):
+    if message.text and message.text.startswith("/"):
+        await state.clear()
+        return
     data = await state.get_data()
     prod_id = data["prod_id"]
-    raw = message.text
+    raw = message.text or ""
+
     # Support multiple lines or commas
     items = []
     for line in raw.split("\n"):
@@ -282,6 +286,9 @@ async def cb_edit_price(callback: CallbackQuery, state: FSMContext):
 
 @router.message(AdminStates.waiting_edit_price)
 async def process_edit_price(message: Message, state: FSMContext):
+    if message.text and message.text.startswith("/"):
+        await state.clear()
+        return
     data = await state.get_data()
     prod_id = data["prod_id"]
     try:
@@ -316,6 +323,9 @@ async def cb_edit_desc(callback: CallbackQuery, state: FSMContext):
 
 @router.message(AdminStates.waiting_edit_desc)
 async def process_edit_desc(message: Message, state: FSMContext):
+    if message.text and message.text.startswith("/"):
+        await state.clear()
+        return
     data = await state.get_data()
     prod_id = data["prod_id"]
     new_desc = message.text or message.caption or ""
@@ -348,6 +358,9 @@ async def cb_edit_name(callback: CallbackQuery, state: FSMContext):
 
 @router.message(AdminStates.waiting_edit_name)
 async def process_edit_name(message: Message, state: FSMContext):
+    if message.text and message.text.startswith("/"):
+        await state.clear()
+        return
     data = await state.get_data()
     prod_id = data["prod_id"]
     new_name = message.text.strip()
@@ -371,7 +384,7 @@ async def cb_edit_pic(callback: CallbackQuery, state: FSMContext):
     await state.update_data(prod_id=prod_id)
     text = (
         f"{tg_e('PURPLE_FLASH')} <b>Edit Picture / Banner for {prod['name']}</b>\n\n"
-        f"Current Banner: <code>{prod.get('banner_image') or 'Default studio art'}</code>\n\n"
+        f"Current Banner: <code>{prod.get('image_url') or prod.get('banner_image') or 'Default studio art'}</code>\n\n"
         f"📸 <b>Send a photo directly</b> to upload it as the banner, or paste an <b>image URL</b>:"
     )
     kb = InlineKeyboardMarkup(inline_keyboard=[[InlineKeyboardButton(text="⬅ Cancel", callback_data=f"admin:prod_view:{prod_id}")]])
@@ -380,6 +393,9 @@ async def cb_edit_pic(callback: CallbackQuery, state: FSMContext):
 
 @router.message(AdminStates.waiting_edit_pic)
 async def process_edit_pic(message: Message, state: FSMContext, bot: Bot):
+    if message.text and message.text.startswith("/"):
+        await state.clear()
+        return
     import os
     data = await state.get_data()
     prod_id = data["prod_id"]
@@ -398,7 +414,7 @@ async def process_edit_pic(message: Message, state: FSMContext, bot: Bot):
         await message.answer("Please send a photo or a valid image URL.")
         return
 
-    await update_product_field(prod_id, "banner_image", saved_path)
+    await update_product_field(prod_id, "image_url", saved_path)
     await state.clear()
     prod = await get_product(prod_id)
     await message.answer(
@@ -408,6 +424,7 @@ async def process_edit_pic(message: Message, state: FSMContext, bot: Bot):
     )
 
 @router.callback_query(F.data.startswith("admin:clear_stock:"))
+
 async def cb_clear_stock(callback: CallbackQuery):
     prod_id = int(callback.data.split(":")[2])
     count = await clear_product_stock(prod_id)
@@ -564,6 +581,9 @@ async def cb_add_funds(callback: CallbackQuery, state: FSMContext):
 
 @router.message(AdminStates.waiting_add_funds)
 async def process_add_funds(message: Message, state: FSMContext):
+    if message.text and message.text.startswith("/"):
+        await state.clear()
+        return
     data = await state.get_data()
     uid = data["target_uid"]
     try:
@@ -599,6 +619,9 @@ async def cb_rem_funds(callback: CallbackQuery, state: FSMContext):
 
 @router.message(AdminStates.waiting_rem_funds)
 async def process_rem_funds(message: Message, state: FSMContext):
+    if message.text and message.text.startswith("/"):
+        await state.clear()
+        return
     data = await state.get_data()
     uid = data["target_uid"]
     try:
@@ -616,6 +639,7 @@ async def process_rem_funds(message: Message, state: FSMContext):
         )
     except Exception as e:
         await message.answer(f"Invalid amount. Please enter a valid positive number to deduct: {e}", parse_mode="HTML")
+
 
 @router.callback_query(F.data.startswith("admin:user_orders:"))
 async def cb_user_orders(callback: CallbackQuery):
@@ -646,8 +670,12 @@ async def cb_user_lookup_prompt(callback: CallbackQuery, state: FSMContext):
 
 @router.message(AdminStates.waiting_user_lookup)
 async def process_user_lookup(message: Message, state: FSMContext):
+    if message.text and message.text.startswith("/"):
+        await state.clear()
+        return
     query = message.text.strip()
     users = await search_users(query)
+
     if not users:
         await message.answer(f"No registered users found matching <code>{query}</code>.", parse_mode="HTML")
         return
@@ -826,19 +854,36 @@ async def cb_admin_broadcast(callback: CallbackQuery, state: FSMContext):
 
 @router.message(AdminStates.waiting_broadcast_text)
 async def process_broadcast(message: Message, state: FSMContext, bot: Bot):
-    text = message.text
+    if message.text and message.text.startswith("/"):
+        await state.clear()
+        await message.answer("Broadcast cancelled.", reply_markup=get_admin_main_keyboard(True))
+        return
+
     async with get_db() as db:
         users = await (await db.execute("SELECT user_id FROM users")).fetchall()
 
     success = 0
     fail = 0
-    for u in users:
-        uid = u["user_id"]
-        try:
-            await bot.send_message(chat_id=uid, text=text, parse_mode="HTML")
-            success += 1
-        except Exception:
-            fail += 1
+
+    if message.photo:
+        photo_id = message.photo[-1].file_id
+        caption = message.caption or ""
+        for u in users:
+            uid = u["user_id"]
+            try:
+                await bot.send_photo(chat_id=uid, photo=photo_id, caption=caption, parse_mode="HTML")
+                success += 1
+            except Exception:
+                fail += 1
+    else:
+        text = message.text or ""
+        for u in users:
+            uid = u["user_id"]
+            try:
+                await bot.send_message(chat_id=uid, text=text, parse_mode="HTML")
+                success += 1
+            except Exception:
+                fail += 1
 
     await state.clear()
     await message.answer(
@@ -848,6 +893,7 @@ async def process_broadcast(message: Message, state: FSMContext, bot: Bot):
         reply_markup=get_admin_main_keyboard(True),
         parse_mode="HTML"
     )
+
 
 # ==================== UPSTREAM WHOLESALE APIS (VENTEBOT & ROBIXE) ====================
 @router.message(Command("apis"))
