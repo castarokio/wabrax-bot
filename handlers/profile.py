@@ -1,6 +1,7 @@
 from aiogram import Router, F
-from aiogram.types import CallbackQuery, InlineKeyboardMarkup, InlineKeyboardButton
+from aiogram.types import Message, CallbackQuery, InlineKeyboardMarkup, InlineKeyboardButton
 from database.queries import (
+
     get_user, get_user_stats, toggle_user_notification, get_user_orders
 )
 from keyboards.inline_user import (
